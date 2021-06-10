@@ -1,0 +1,38 @@
+---
+title: "sad2"
+author: "Jakub Skrajny"
+date: "8 06 2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
+
+## Read data
+
+```{r}
+load("cancer.RData")
+```
+
+## 1
+Liczba zmiennych objaśniających
+```{r}
+length(data.train) - 1
+```
+
+```{r}
+train <- data.frame(data.train)
+means <- c()
+sds <- c()
+wz <- sapply(train, sd) / sapply(train, mean)
+sorted <- sort(wz, decreasing = TRUE)[1:50]
+df <- data.frame(sorted)
+corpij <- function(i,j,data) {cor(data[i], data[j])}
+corp <- Vectorize(corpij, vectorize.args=list("i","j"))
+cormat <- outer(rownames(df),rownames(df),corp,data=train)
+ggplot()+geom_violin(aes(c(cormat), c(cormat)))
+plot_df <- reshape2::melt(cormat)
+ggplot(plot_df) + geom_tile(aes(Var1, Var2, fill = value))
+```
